@@ -45,21 +45,73 @@
         inherit src;
         inherit patches;
       };
-      inherit
-        (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; })
-        mkPoetryApplication
-      ;
+      # inherit
+      #   (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; })
+      #   mkPoetryApplication
+      # ;
     in
-      mkPoetryApplication {
-        projectDir = patched-src;
-        overrides = pkgs.poetry2nix.overrides.withDefaults (self: super: {
-          # …
-          # workaround https://github.com/nix-community/poetry2nix/issues/568
-          structlog = super.structlog.overridePythonAttrs (old: {
-            buildInputs = old.buildInputs or [ ] ++ [ pkgs.python310.pkgs.flit-core ];
-          });
-        });
+      # pkgs.python311Packages.toPythonModule (pkgs.stdenv.mkDerivation {
+      pkgs.python311Packages.buildPythonPackage {
+        pname = "stable-diffusion-webui";
+        version = "v1.8.0";
+        pyproject = true;
+        nativeBuildInputs = [
+          pkgs.python311Packages.setuptools
+          pkgs.python311Packages.setuptools-scm
+        ];
+        buildInputs = with pkgs.python311Packages; [
+gitpython
+pillow
+pkgs.python311Packages.accelerate
+
+# basicsr
+# blendmodes
+clean-fid
+einops
+fastapi
+# gfpgan
+gradio
+inflection
+jsonmerge
+kornia
+lark
+numpy
+omegaconf
+open-clip-torch
+
+piexif
+psutil
+pytorch-lightning
+#realesrgan
+requests
+resize-right
+
+safetensors
+scikit-image
+timm
+# tomesd
+torch
+torchdiffeq
+torchsde
+transformers
+          # pkgs.python311Packages.clean-fid
+          # pkgs.python311Packages.clean-fid
+        ];
+        # Without this, we'll get the "No such file or directory: 'setup.py'"
+        # error.
+        # format = "pyproject";
+        src = patched-src;
       };
+      # mkPoetryApplication {
+      #   projectDir = patched-src;
+      #   overrides = pkgs.poetry2nix.overrides.withDefaults (self: super: {
+      #     # …
+      #     # workaround https://github.com/nix-community/poetry2nix/issues/568
+      #     structlog = super.structlog.overridePythonAttrs (old: {
+      #       buildInputs = old.buildInputs or [ ] ++ [ pkgs.python310.pkgs.flit-core ];
+      #     });
+      #   });
+      # };
     darwinModules.aarch64-darwin.default = let
       system = "aarch64-darwin";
       pkgs = import nixpkgs {
