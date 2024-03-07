@@ -2,7 +2,7 @@
   description = "AUTOMATIC1111/stable-diffusion-webui flake";
 
   inputs = {
-    nixpkgs.url = github:NixOS/nixpkgs/nixos-unstable;
+    nixpkgs.url = github:NixOS/nixpkgs/master;
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,8 +14,6 @@
       system = "aarch64-darwin";
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [
-        ];
       };
 
     in pkgs.mkShell {
@@ -24,8 +22,40 @@
 
     packages.aarch64-darwin.default = let
       system = "aarch64-darwin";
+
+      defaultOverrides = [
+        (final: prev: {
+          gradio = prev.gradio.overridePythonAttrs (oldAttrs: rec {
+            version = "3.19.2";
+            src = prev.fetchPypi {
+              pname = "gradio";
+              inherit version;
+              hash = "sha256-JQn+rtpy/OA2deLszSKEuxyttqBzcAil50H+JDHUdCE=";
+            };
+          });
+        })
+      ];
+
       pkgs = import nixpkgs {
         inherit system;
+        overlays = [
+
+          (final: prev: {
+            python311 = prev.python311.override {
+              # packageOverrides = prev.lib.composeManyExtensions (defaultOverrides);
+              packageOverrides =
+                (pyfinal: pyprev: {
+                  # I don't know how to just bump the version, so we just pull
+                  # an entire copy of the package into the repo.
+                  gradio = pyfinal.callPackage ./gradio/default.nix {};
+                  gradio-client = pyfinal.callPackage ./gradio/client.nix { };
+                })
+              ;
+            };
+            python311Packages = final.python311.pkgs;
+          })
+
+        ];
       };
       src = (pkgs.fetchFromGitHub {
         owner = "AUTOMATIC1111";
@@ -62,7 +92,7 @@
         buildInputs = with pkgs.python311Packages; [
 gitpython
 pillow
-pkgs.python311Packages.accelerate
+accelerate
 
 # basicsr
 # blendmodes
