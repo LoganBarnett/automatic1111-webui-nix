@@ -15,7 +15,7 @@
 , packaging
 , requests
 , typing-extensions
-, websockets
+, websockets10
 # checkInputs
 , pytestCheckHook
 , pytest-asyncio
@@ -27,7 +27,7 @@
 
 buildPythonPackage rec {
   pname = "gradio-client";
-  version = "0.7.3";
+  version = "0.4.0";
   format = "pyproject";
 
   disabled = pythonOlder "3.8";
@@ -37,13 +37,21 @@ buildPythonPackage rec {
     owner = "gradio-app";
     repo = "gradio";
     #rev = "refs/tags/v${gradio.version}";
-    rev = "dc131b64f05062447643217819ca630e483a11df"; # v4.9.1 is not tagged...
+    rev = "a22f3e062d8d30f630e0cf8e373ad7cb0f99330f"; # v4.9.1 is not tagged...
     sparseCheckout = [ "client/python" ];
-    hash = "sha256-Zp1Zl53Va0pyyZEHDUpnldi4dtH2uss7PZQD+Le8+cA=";
+    hash = "sha256-kBjUQ9j5+4kOBOd8ltHVhJvErtEG2xqNeupndhWR1wc=";
   };
   prePatch = ''
     cd client/python
   '';
+
+  disabledTests = [
+    # Requires a queue running somewhere.
+    "test_cancel_subsequent_jobs_state_reset"
+    "test_progress_updates"
+    "TestClientPredictions::test_progress_updates"
+    "TestClientPredictions::test_cancel_subsequent_jobs_state_reset"
+  ];
 
   # upstream adds upper constraints because they can, not because the need to
   # https://github.com/gradio-app/gradio/pull/4885
@@ -66,7 +74,7 @@ buildPythonPackage rec {
     huggingface-hub
     packaging
     typing-extensions
-    websockets
+    websockets10
   ];
 
   nativeCheckInputs = [

@@ -44,11 +44,12 @@
             python311 = prev.python311.override {
               # packageOverrides = prev.lib.composeManyExtensions (defaultOverrides);
               packageOverrides =
-                (pyfinal: pyprev: {
+                (pyfinal: pyprev: rec {
                   # I don't know how to just bump the version, so we just pull
                   # an entire copy of the package into the repo.
                   gradio = pyfinal.callPackage ./gradio/default.nix {};
-                  gradio-client = pyfinal.callPackage ./gradio/client.nix { };
+                  gradio-client-why = pyfinal.callPackage ./gradio/client.nix { };
+                  websockets10 = pyfinal.callPackage ./websockets/default.nix { };
                 })
               ;
             };
