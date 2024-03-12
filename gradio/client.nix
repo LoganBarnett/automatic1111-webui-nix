@@ -15,7 +15,7 @@
 , packaging
 , requests
 , typing-extensions
-, websockets10
+, websockets_10
 # checkInputs
 , pytestCheckHook
 , pytest-asyncio
@@ -74,7 +74,7 @@ buildPythonPackage rec {
     huggingface-hub
     packaging
     typing-extensions
-    websockets10
+    websockets_10
   ];
 
   nativeCheckInputs = [

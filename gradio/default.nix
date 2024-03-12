@@ -39,7 +39,7 @@
 , uvicorn
 , typer
 , tomlkit
-, websockets10
+, websockets_10
 
 # check
 , pytestCheckHook
@@ -90,7 +90,7 @@ buildPythonPackage rec {
   ];
 
   propagatedBuildInputs = [
-    websockets10
+    websockets_10
     setuptools # needed for 'pkg_resources'
     aiofiles
     altair
